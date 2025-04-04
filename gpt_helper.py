@@ -2,7 +2,7 @@ import pyperclip
 from bs4 import BeautifulSoup
 from utils import format_date
 
-def CpyGPTInstructionMsg(job_desc: str, exp_cnt_jd: int, exp_count_custom: int,  cus_stacks: list, cus_keywords: str, skills: str) -> str:
+def CpyGPTInstructionMsg(job_desc: str, exp_cnt_jd: int, skills: str) -> str:
     """
     Generates the full GPT instruction message by joining different sections and copies it to the clipboard.
     """
@@ -40,13 +40,10 @@ Let's say them as EXTRACTED_KEYWORDS
 Output Format
     HTML Strings using <p>, <strong>.
 
-{"Append these keywords(" + cus_keywords + ") to EXTRACTED_KEYWORDS being used to create the resume summary and experiences. " if len(cus_keywords) > 0 else ""}
-
 Second, generate summary and experiences. use <p> and <strong> tags.
         A resume summary for a Senior Full Stack Developer that is the best match for the job description in two sentences
         Years of experience is {12}+.
         Use the extracted keywords concerned with development above and emphasize them in a resume summary in bold.
-        {"Additionally, highlight my experience with other development stacks, including " + ','.join(cus_stacks) if len(cus_stacks) > 0 else ""}
 Let's say summary section as GEN_SUMMARY
 
     <Company_name> - use <h1> tags
@@ -71,12 +68,10 @@ Special Instruction for companies
         {exp_cnt_jd} sentences
         
     INHERENT TECHNOLOGIES -
-        {exp_cnt_jd + int(exp_count_custom / 2) + 1} sentences
-        {int(exp_count_custom)} are for the other development stacks—{','.join(cus_stacks) if len(cus_stacks) > 0 else ''}.
+        {exp_cnt_jd } sentences
       
     LCG, INC. -
-        {exp_cnt_jd + int(exp_count_custom / 2) + 1} sentences
-        {int(exp_count_custom)} are for the other development stacks—{','.join(cus_stacks) if len(cus_stacks) > 0 else ''}.
+        {exp_cnt_jd } sentences
         
 Let's say above section as GEN_COMPANY
 

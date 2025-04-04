@@ -17,15 +17,13 @@ from openpyxl import load_workbook
 import random
 
 class JobBidder:
-    def __init__(self, y_exp: int, lang: list, exp_sen_cnt: dict[str, int]):
+    def __init__(self, y_exp: int):
         self.y_exp = y_exp
-        self.exp_sen_cnt = exp_sen_cnt
-        self.lang = lang
         
         # Initialize and save the driver
         self.driver = InitDriver()
 
-    def GenResume(self, base_resume: str, main_lang: str, custom_lang: list, title: str, company: str, name: str, replacements: dict) -> str:
+    def GenResume(self, base_resume: str, title: str, company: str, name: str, replacements: dict) -> str:
         """
         Generates a resume by replacing placeholders in the base resume with the provided replacements.
         """

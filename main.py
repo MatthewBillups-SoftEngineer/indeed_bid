@@ -19,21 +19,6 @@ class JobBidderUI:
         self.cur_row = 2
         
         self.exp_count_jd = 4
-        self.exp_count_custom = 2
-        self.exp_count_manual = 2
-        
-        self.custom_stack_lst = ["MEAN", "MERN", "LAMP", "LEMP", "GraphQL+Apollo+Node.js+MongoDB", "Django+GraphQL",
-            ".NET Core/.NET 5+", "ASP.NET", "Xamarin", "Unity", "Azure DevOps", "ML(C#,ML.NET,TensorFlow.NET,Azure ML)", 
-            "WPF+WinForms+MAUI", "Spring", "Java EE (Jakarta EE)", "Microservices with Java Stack", "JAMstack with Java Back-End", "GoLang + Gorilla Toolkit + PostgreSQL",
-            "GoLang+Gin+MongoDB", "GoLang+Revel+MySQL", "GoLang+Echo+Redis", "GoLang+Docker+Kubernetes", "GoLang+AWS SDK", "Ruby on Rails (RoR)",
-            "Ruby+Sinatra", "Ruby+React/Vue.js", "Ruby+GraphQL", "Ruby+Docker/Containerization", "Ruby+AWS",  "R+Shiny+HTML/CSS+JavaScript", "R+RStudio+Shiny+PostgreSQL", "R+TensorFlow+Keras+Docker",
-            "R+Apache Spark+Hadoop", "R+Jupyter+Python", "R+Plumber+MongoDB", "R+RMarkdown+GitHub", "Rust+Rocket+Diesel", "Rust+Actix+SQLx", "Rust+Yew+WebAssembly", "Rust+Tokio+Hyper",
-            "Rust+Tonic+Protobuf", "Rust+Serde+Actix Web"
-        ]
-        self.lang_lst = ["Java", "C#", "Python", "Go", "PHP", "Ruby", "Dart", "JavaScript", "TypeScript", "SQL", "Rust", "R", "C++", "Perl", "Swift", "Objective-C", "Kotlin", "Mongo"]
-        
-        self.chkbox_stacks_vars = []  # Store the checkbox variables for stacks
-        self.chkbox_custom_lang_vars = []
         
         self.chkbox_show_docx = tk.BooleanVar()  # Create a variable to store the checkbox state
         self.chkbox_show_docx.set(False)
@@ -51,8 +36,6 @@ class JobBidderUI:
         self.create_editing_area()
         self.create_button_area()
         
-        self.on_mainlang_select(None)
-
     def create_editing_area(self):
         """
         Create the editing area with a scrollable frame
@@ -99,55 +82,17 @@ class JobBidderUI:
             ("Job Detail", "job_detail_text"),
             ("Skills", "skills_entry"),
             ("GPT Result", "gpt_text"),
-            ("Main Lang", "main_lang_combo"),
-            ("Custom Lang", "custom_lang"),
             ("Summary", "summary_text"),
             ("LCG, Inc.", "company1_text"),
             ("Inherent Technologies", "company2_text"),
             ("Silverado Technologies", "company3_text"),
             ("Mytek Network Solutions", "company4_text"),
-            ("Keywords", "keywords_text"),
         ]
 
         for i, (label_text, var_name) in enumerate(fields):
             tk.Label(self.editing_area_frame, text=label_text).grid(row=i, column=0, sticky="w", padx=5, pady=5)
             if "text" in var_name:
                 setattr(self, var_name, scrolledtext.ScrolledText(self.editing_area_frame, width=100, height=5))
-            elif "main_lang" in var_name:
-                # Create a searchable combo box
-                lang_combobox = ttk.Combobox(self.editing_area_frame, values=self.lang_lst, width=60)
-                # Allow searching (it’s built-in)
-                lang_combobox.set("C#")
-                # Bind event when a selection is made (optional)
-                lang_combobox.bind("<<ComboboxSelected>>", self.on_mainlang_select)
-                setattr(self, var_name, lang_combobox)
-            elif "custom_lang" in var_name:
-                # Creating the checkbox frame for language checkboxes
-                checkbox_frame = tk.Frame(self.editing_area_frame)
-
-                self.chkbox_custom_lang_vars = []  # Store the checkbox variables for languages
-
-                # Loop to add checkboxes for languages (grouped by 6)
-                for idx, label in enumerate(self.lang_lst):
-                    var = tk.BooleanVar()  # Create a variable to store the checkbox state
-                    checkbox = tk.Checkbutton(checkbox_frame, text=label, variable=var)
-
-                    row = idx // 6 + 1  # Calculate the row (each row has 6 checkboxes)
-                    col = idx % 6  # Calculate the column within that row
-
-                    checkbox.grid(row=row, column=col, padx=5, pady=5, sticky="w")
-                    self.chkbox_custom_lang_vars.append(var)  # Add the variable to the list
-
-                    # Select default checkboxes for "Java", "C#", "Python", "Go", "Ruby", "JavaScript"
-                    if label in ["Java", "C#", "Python", "Go", "Ruby", "JavaScript"]:
-                        var.set(True)  # Set the corresponding checkbox to be checked by default
-                        
-                    # Add a line after each row of checkboxes
-                    if col == 5:  # After every 6th checkbox, add a line
-                        line = tk.Canvas(checkbox_frame, height=2)
-                        line.grid(row=row + 1, column=0, columnspan=6, pady=5, sticky="we")
-                        line.create_line(0, 1, 880, 1, fill="black")  # Horizontal line
-                setattr(self, var_name, checkbox_frame)
             else:
                 setattr(self, var_name, tk.Entry(self.editing_area_frame, width=100))
             
@@ -161,121 +106,40 @@ class JobBidderUI:
         self.entry1 = tk.Entry(self.editing_area_frame, width=30)
         self.entry1.grid(row=len(fields), column=1, padx=5, pady=5, sticky="w")
 
-        self.entry2 = tk.Entry(self.editing_area_frame, width=30)
-        self.entry2.grid(row=len(fields), column=2, padx=5, pady=5, sticky="w")
-
         self.entry1.delete(0, tk.END)
         self.entry1.insert(0, f"{self.exp_count_jd}")
-        
-        self.entry2.delete(0, tk.END)
-        self.entry2.insert(0, f"{self.exp_count_custom}")
         
         # Creating the checkbox frame
         checkbox_frame = tk.Frame(self.editing_area_frame)
         checkbox_frame.grid(row=len(fields) + 1, column=0, columnspan=4, pady=10)
 
-        self.custom_stack_entry = tk.Entry(checkbox_frame, width=150)
-        self.custom_stack_entry.grid(row=0, column=0, columnspan=4, padx=5, pady=5, sticky="w")
-        # Adding checkboxes in a horizontal order, 10 checkboxes per row
-
-        self.chkbox_stacks_vars = []  # Store the checkbox variables for stacks
-        # Loop to add checkboxes in rows of 4
-        for idx, label in enumerate(self.custom_stack_lst):
-            var = tk.BooleanVar()  # Create a variable to store the checkbox state
-            checkbox = tk.Checkbutton(checkbox_frame, text=label, variable=var)
-            
-            row = idx // 4 + 1  # Calculate the row (each row has 10 checkboxes)
-            col = idx % 4  # Calculate the column within that row
-            
-            checkbox.grid(row=row, column=col, padx=5, pady=5, sticky="w")
-            self.chkbox_stacks_vars.append(var)  # Add the variable to the list
-
-            # Add a line after each row of checkboxes
-            if col == 3:  # After 10th checkbox, add a line
-                line = tk.Canvas(checkbox_frame, height=2)
-                line.grid(row=row+1, column=0, columnspan=4, pady=5, sticky="we")
-                line.create_line(0, 1, 880, 1, fill="black")  # Horizontal line
-                
         self.set_first_url()
         
-    def on_mainlang_select(self, event):
-        selected_lang = self.main_lang_combo.get()
-        try:
-            # Get corresponding value from chkbox_custom_lang_vars using the index
-            option = {
-                "C#": {
-                    "Stacks": ["Azure DevOps", ".NET Core/.NET 5+", "ASP.NET", "ML(C#,ML.NET,TensorFlow.NET,Azure ML)", "GoLang+Docker+Kubernetes", "GoLang+AWS SDK", "Ruby+React/Vue.js"],
-                    "Lang": ["Java", "C#", "Python", "Go", "PHP", "SQL"]
-                },
-                "Java": {
-                    "Stacks": ["Spring", "Java EE (Jakarta EE)", "Microservices with Java Stack", "JAMstack with Java Back-End", "GoLang+Docker+Kubernetes", "GoLang+AWS SDK", "Ruby+React/Vue.js"],
-                    "Lang": ["Java", "C#", "Python", "Go", "PHP"]
-                },
-                "Python": {
-                    "Stacks": ["Django+GraphQL", "R+Jupyter+Python", "R+Plumber+MongoDB", "Ruby+GraphQL", "Ruby+Docker/Containerization"],
-                    "Lang": ["Java", "C#", "Python", "Go", "PHP", "R"]
-                },
-                "JavaScript": {
-                    "Stacks": [".NET Core/.NET 5+", "ASP.NET", "MEAN", "MERN", "LAMP", "LEMP", "Ruby+React/Vue.js"],
-                    "Lang": ["Java", "C#", "Python", "Go", "PHP"]
-                },
-                "TypeScript": {
-                    "Stacks": [".NET Core/.NET 5+", "ASP.NET", "MEAN", "MERN", "LAMP", "LEMP", "Ruby+React/Vue.js"],
-                    "Lang": ["Java", "C#", "Python", "Go", "PHP"]
-                },
-                "Go": {
-                    "Stacks": ["GoLang+Gin+MongoDB", "GoLang+Revel+MySQL", "GoLang+Echo+Redis", "GoLang+Docker+Kubernetes", "Spring", "Java EE (Jakarta EE)", "Microservices with Java Stack"],
-                    "Lang": ["Java", "C#", "Python", "Go", "PHP"]
-                },
-                "PHP": {
-                    "Stacks": ["MEAN", "MERN", "LAMP", "LEMP", "GoLang+Gin+MongoDB", "GoLang+Revel+MySQL", "GoLang+Echo+Redis", "GoLang+Docker+Kubernetes"],
-                    "Lang": ["Java", "C#", "Python", "Go", "PHP"]
-                }
-            }
-            for stack in self.custom_stack_lst:
-                self.chkbox_stacks_vars[self.custom_stack_lst.index(stack)].set(False)
-            for stack in self.lang_lst:
-                self.chkbox_custom_lang_vars[self.lang_lst.index(stack)].set(False)
-            for stack in option[selected_lang]["Stacks"]:
-                self.chkbox_stacks_vars[self.custom_stack_lst.index(stack)].set(True)
-            for lang in option[selected_lang]["Lang"]:
-                self.chkbox_custom_lang_vars[self.lang_lst.index(lang)].set(True)
-        except Exception as e:
-            print(f"Error: {e}")
-        print(f"Selected language: {selected_lang}")
     # Bind the event to detect when the content of the text widget changes
     def on_gpt_change(self, event):
         # Only call parse_html_content if there is an actual change in content
         if self.gpt_text.edit_modified():
-            parse_res = ParseGPTResult(self.gpt_text.get(1.0, tk.END).strip())
-            
-            # Iterate through the dictionary
-            for sect, res in parse_res.items():
-                if "GEN_SUMMARY" in sect:
-                    self.summary_text.delete(1.0, tk.END)  # Clear any previous value
-                    self.summary_text.insert(tk.END, res)  # Set the job description
-                elif 'EXTRACTED_KEYWORDS' in sect:
-                    self.keywords_text.delete(1.0, tk.END)  # Clear any previous value
-                    self.keywords_text.insert(tk.END, res)  # Set the job description
-                else:
-                    company_names = ['LCG, INC.', 'INHERENT TECHNOLOGIES', 'SILVERADO TECHNOLOGIES', 'MYTEK NETWORK SOLUTIONS']
-                    for idx, name in enumerate(company_names, start=1):
-                        for company_name, company_experiences in res.items():
-                            if name in company_name:
-                                attr_name = f"company{idx}_text"
-                                if getattr(self, attr_name) and isinstance(getattr(self, attr_name), scrolledtext.ScrolledText):
-                                    getattr(self, attr_name).delete(1.0, tk.END)
-                                    getattr(self, attr_name).insert(tk.END, "\n".join(company_experiences))
-                                break
+            try:
+                parse_res = ParseGPTResult(self.gpt_text.get(1.0, tk.END).strip())
+                
+                # Iterate through the dictionary
+                for sect, res in parse_res.items():
+                    if "GEN_SUMMARY" in sect:
+                        self.summary_text.delete(1.0, tk.END)  # Clear any previous value
+                        self.summary_text.insert(tk.END, res)  # Set the job description
+                    elif "GEN_COMPANY" in sect:
+                        company_names = ['LCG, INC.', 'INHERENT TECHNOLOGIES', 'SILVERADO TECHNOLOGIES', 'MYTEK NETWORK SOLUTIONS']
+                        for idx, name in enumerate(company_names, start=1):
+                            for company_name, company_experiences in res.items():
+                                if name in company_name:
+                                    attr_name = f"company{idx}_text"
+                                    if getattr(self, attr_name) and isinstance(getattr(self, attr_name), scrolledtext.ScrolledText):
+                                        getattr(self, attr_name).delete(1.0, tk.END)
+                                        getattr(self, attr_name).insert(tk.END, "\n".join(company_experiences))
+                                    break
+            finally:
+                self.gpt_text.edit_modified(False)  # Reset the modified flag
 
-            self.gpt_text.edit_modified(False)  # Reset the modified flag
-    def get_custom_stacks(self):
-        checked_items = []
-        for idx, var in enumerate(self.chkbox_stacks_vars):
-            if var.get():  # If the checkbox is checked
-                checked_items.append(self.custom_stack_lst[idx])
-        return checked_items
-    
     def set_first_url(self):
         getattr(self, 'url_entry').delete(0, tk.END)
         if self.bid_url_processor.First():
@@ -358,7 +222,7 @@ class JobBidderUI:
             try:
                 # Call GetJobDetail and get the job details as a dictionary
                 
-                self.job_bidder = JobBidder(12, self.lang_lst, {})
+                self.job_bidder = JobBidder(12)
                 self.job_details = self.job_bidder.GetJobDetail(url)
                 
                 # Populate the UI fields with the returned values
@@ -383,7 +247,7 @@ class JobBidderUI:
                     self.skills_entry.insert(0, self.job_details["skills"])  # Set the title
                     
                 job_description = self.job_detail_text.get(1.0, tk.END).strip()
-                CpyGPTInstructionMsg(job_description, int(self.entry1.get()), int(self.entry2.get()), self.get_custom_stacks(), self.custom_stack_entry.get(), self.skills_entry.get())
+                CpyGPTInstructionMsg(job_description, int(self.entry1.get()), self.skills_entry.get())
 
             except Exception as e:
                 # If an exception occurs, show a message box with the error message
@@ -393,7 +257,7 @@ class JobBidderUI:
             
     def cpy_gptstrs_clipboard(self):
         job_description = self.job_detail_text.get(1.0, tk.END).strip()
-        CpyGPTInstructionMsg(job_description, int(self.entry1.get()), int(self.entry2.get()), self.get_custom_stacks(), self.custom_stack_entry.get(), self.skills_entry.get())
+        CpyGPTInstructionMsg(job_description, int(self.entry1.get()), self.skills_entry.get())
         
     def chk_exist_job(self):
         result = BidRecord().Exist(self.title_entry.get(), self.company_entry.get(), self.url_entry.get(), self.company_url_entry.get())
@@ -484,19 +348,9 @@ class JobBidderUI:
                 raise ValueError(f"Silverado Technologies text is empty")
             if not self.company4_text.get(1.0, tk.END).strip():
                 raise ValueError(f"Mytek Network Solutions text is empty")
-            if not self.keywords_text.get(1.0, tk.END).strip():
-                raise ValueError(f"Keywords text is empty")
-            
-            # self.main_lang_combo.get() if self.main_lang_combo.get() in self.lang_lst else "base"
-            # self.chkbox_custom_lang_vars
-            custom_langs = [
-                label for idx, label in enumerate(self.lang_lst) if self.chkbox_custom_lang_vars[idx].get()
-            ]
             
             resume_path = self.job_bidder.GenResume(
                 self.get_base_resume_path(),
-                self.main_lang_combo.get() if self.main_lang_combo.get() in self.lang_lst else "base",
-                custom_langs,
                 self.title_entry.get(), self.company_entry.get(), self.usrname,
                 {
                     '{__Summary__}' : (None, self.summary_text.get(1.0, tk.END).strip()),
@@ -507,16 +361,6 @@ class JobBidderUI:
                 }
             )
 
-            soup = BeautifulSoup(self.keywords_text.get(1.0, tk.END).strip(), 'html.parser')
-
-            # Create a dictionary to hold the extracted data
-            data_dict = {}
-
-            # Extract the data from the HTML and populate the dictionary
-            for p_tag in soup.find_all('p'):
-                key = p_tag.find('strong').text.replace(":", "").strip()
-                value = p_tag.text.replace(p_tag.find('strong').text, "").strip()
-                data_dict[key] = value
             add_dict = {
                 "Site": f"{urlparse(self.url_entry.get()).scheme}://{urlparse(self.url_entry.get()).netloc}/",
                 "Title": self.title_entry.get(),
@@ -571,7 +415,6 @@ class JobBidderUI:
                 ("Inherent Technologies", "company2_text"),
                 ("Silverado Technologies", "company3_text"),
                 ("Mytek Network Solutions", "company4_text"),
-                ("Keywords", "keywords_text"),
             ]
             if should_remove:
                 for i, (label_text, var_name) in enumerate(fields):
